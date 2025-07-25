@@ -1,50 +1,133 @@
-# Welcome to your Expo app 👋
+# React Native Base Project
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A starter guide for a React Native mobile application using Expo Dev Client, Phosphor icons, and Valtio state management with persistence.
 
-## Get started
+---
 
-1. Install dependencies
+## 🎯 Overview
+
+This project is configured for **mobile** only (iOS & Android). Web support has not been tested.
+
+Key dependencies:
+
+- **expo** `~53.0.17` (with Dev Client)
+- **phosphor-react-native** `^3.0.0` (icon library)
+- **valtio** `^2.1.5` (state management)
+- **valtio-persist** `^2.2.4` (state persistence)
+- **react-native-mmkv** `^3.3.0` (state persistence)
+
+## 🚀 Requirements
+
+- **Node.js** v20.19.3 (recommended)
+- **Bun** (for package management and scripts)
+- Xcode (macOS) or Android Studio (Windows/macOS) for simulators
+
+## ⚙️ Installation
+
+1. **Clone the repository**
 
    ```bash
-   npm install
+   bun clone <repo-url>
+   cd <repo-folder>
    ```
 
-2. Start the app
+2. **Install dependencies**
 
    ```bash
-   npx expo start
+   bun install
    ```
 
-In the output, you'll find options to open the app in a
+3. **Run the Expo Dev Client**
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```bash
+   bun start
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+   - Then follow the CLI instructions to open on iOS or Android.
 
-## Get a fresh project
+## 📋 Scripts
 
-When you're ready, run:
+All scripts use **Bun**:
 
-```bash
-npm run reset-project
+| Script    | Command       | Description                            |
+| --------- | ------------- | -------------------------------------- |
+| `start`   | `bun start`   | Launch Expo Dev Client (metro)         |
+| `android` | `bun android` | Build & run on Android emulator/device |
+| `ios`     | `bun ios`     | Build & run on iOS simulator/device    |
+| `lint`    | `bun lint`    | Run Expo lint                          |
+
+## 🔧 Configuration
+
+- **Environment variables**: No `.env` setup yet. You can create a `.env` file at project root and integrate with your preferred solution (e.g. `react-native-dotenv`).
+
+## 🗂️ State Management (Valtio + Persist)
+
+1. **Valtio Store**: Create your state objects using `valtio`:
+
+   ```ts
+   import { proxy } from "valtio";
+
+   export const appState = proxy({
+     user: null,
+     settings: {},
+   });
+   ```
+
+2. **Persistence Strategy**: We use a custom `MMKVStrategy` with `valtio-persist`:
+
+   ```ts
+   export class MMKVStrategy implements StorageStrategy<false> {
+      // <false> → synchronous
+      readonly isAsync = false;
+
+      has = (key: string) => mmkv.contains(key);
+      get = (key: string) => mmkv.getString(key) ?? null;
+      set = (key: string, value: string) => mmkv.set(key, value);
+      remove = (key: string) => mmkv.delete(key);
+   }
+
+   ....
+
+   export const preferencesStorePromise = persist<PreferencesStore>(
+      { theme: "light" },
+      "preferences",
+      { storageStrategy: MMKVStrategy }
+   );
+   ```
+
+3. **Usage**: Import `appState` in components and read/write directly:
+
+   ```tsx
+    const { changeTheme } = usePreferences()
+    const { theme } = usePreferencesStore()
+   ```
+
+## 🎨 Icon Wrapper Component
+
+We provide a `ThemedIcon` component as a wrapper around Phosphor icons:
+
+```tsx
+import { ThemedIcon } from "@/components/ThemedIcon";
+import { CaretRight } from "phosphor-react-native";
+
+// usage:
+<ThemedIcon icon={CaretRight} size="md" colorKey="primaryForeground" />;
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📦 Project Files
 
-## Learn more
+- `/src/components` — Reusable UI components (e.g. `ThemedIcon`, `Collapsible`).
+- `/src/animations` — Animation helpers (e.g. `PressableScale`, `DoublePressScale`).
+- `/App.tsx` — Entry point.
 
-To learn more about developing your project with Expo, look at the following resources:
+_(Note: No enforced folder structure—adjust as needed.)_
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 🤝 Contributing
 
-## Join the community
+1. Create a branch: `git checkout -b feature/YourFeature`
+2. Commit changes: `git commit -m "feat: Add new component"`
+3. Push branch and open a PR.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+© 2025 Your Company or Name. All rights reserved.
