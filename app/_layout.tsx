@@ -1,29 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+  Nunito_300Light,
+  Nunito_300Light_Italic,
+  Nunito_400Regular,
+  Nunito_400Regular_Italic,
+  Nunito_600SemiBold,
+  Nunito_900Black,
+  useFonts,
+} from "@expo-google-fonts/nunito";
+import { Stack } from "expo-router";
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+import { SplashScreenController } from "@/components/views";
+
+import "react-native-reanimated";
+
+export default function Root() {
+  const [fontsLoaded] = useFonts({
+    "Nunito-Light": Nunito_300Light,
+    "Nunito-Light-Italic": Nunito_300Light_Italic,
+    "Nunito-Regular": Nunito_400Regular,
+    "Nunito-Regular-Italic": Nunito_400Regular_Italic,
+    "Nunito-SemiBold": Nunito_600SemiBold,
+    "Nunito-Bold": Nunito_900Black,
   });
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  const isReady = fontsLoaded;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <SplashScreenController isReady={isReady} />
+      <RootLayout />
+    </GestureHandlerRootView>
   );
 }
+
+const RootLayout = () => {
+  return (
+    <Stack
+      initialRouteName="design-system"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="design-system" />
+    </Stack>
+  );
+};
